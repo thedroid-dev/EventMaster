@@ -1,0 +1,2 @@
+# EventMaster
+Inspirado en ConditionalEvents
