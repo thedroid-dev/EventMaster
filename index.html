@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="blue" data-lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keef Web | Professional Developer & Bot Architect</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060812;
+            --card-bg: rgba(14, 18, 34, 0.75);
+            --card-border: rgba(0, 240, 255, 0.2);
+            --primary: #00f0ff;
+            --primary-glow: rgba(0, 240, 255, 0.35);
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+            --accent-gradient: linear-gradient(135deg, #00f0ff 0%, #7000ff 100%);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="red"] {
+            --bg-color: #08080a;
+            --card-bg: rgba(18, 18, 24, 0.8);
+            --card-border: rgba(255, 42, 77, 0.25);
+            --primary: #ff2a4d;
+            --primary-glow: rgba(255, 42, 77, 0.35);
+            --accent-gradient: linear-gradient(135deg, #ff2a4d 0%, #ff8800 100%);
+        }
+
+        [data-theme="black"] {
+            --bg-color: #050505;
+            --card-bg: rgba(17, 17, 17, 0.85);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --primary: #ffffff;
+            --primary-glow: rgba(255, 255, 255, 0.25);
+            --accent-gradient: linear-gradient(135deg, #ffffff 0%, #888888 100%);
+            --text-main: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Background grid effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+        }
+
+        /* Ambient Glow Blobs */
+        .glow-blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: var(--primary);
+            filter: blur(140px);
+            opacity: 0.12;
+            z-index: -1;
+            pointer-events: none;
+            transition: background 0.5s ease;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(6, 8, 18, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 1.4rem;
+            color: var(--primary);
+            -webkit-text-fill-color: initial;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* Controls Panel (Theme & Language) */
+        .controls-panel {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .control-btn.active, .control-btn:hover {
+            background: var(--primary);
+            color: #000;
+            text-shadow: none;
+        }
+
+        .theme-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+        .theme-dot.blue { background: #00f0ff; }
+        .theme-dot.red { background: #ff2a4d; }
+        .theme-dot.black { background: #ffffff; }
+        .theme-dot.active { transform: scale(1.25); border-color: #fff; box-shadow: 0 0 10px var(--primary); }
+
+        /* Hero Section */
+        header.hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 140px 20px 80px;
+            position: relative;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            backdrop-filter: blur(5px);
+            animation: pulse-glow 2s infinite;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        h1 {
+            font-size: clamp(2.8rem, 6vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        h1 span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.hero-subtitle {
+            font-size: clamp(1.05rem, 2vw, 1.35rem);
+            color: var(--text-muted);
+            max-width: 750px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #050505;
+            box-shadow: 0 0 25px var(--primary-glow);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 35px var(--primary);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        /* Container & Sections */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 100px 20px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: -1px;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 80px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--primary-glow);
+        }
+
+        .stat-card i {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .stat-card h3 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Services & Pricing Cards */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .price-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .price-card.featured {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px var(--primary-glow);
+            transform: scale(1.03);
+        }
+
+        .price-card.featured::before {
+            content: 'POPULAR';
+            position: absolute;
+            top: -14px;
+            right: 30px;
+            background: var(--primary);
+            color: #000;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .price-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px var(--primary-glow);
+        }
+
+        .price-header i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .price-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .price-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            min-height: 45px;
+        }
+
+        .price-tag {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 25px 0;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .price-tag span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .features-list li i {
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        /* Tech Stack Section */
+        .tech-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-item {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 25px 20px;
+            border-radius: 14px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .tech-item:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .tech-item i {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .tech-item h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .tech-item p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Contact Section */
+        .contact-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 60px 40px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .contact-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            padding: 30px;
+            border-radius: 16px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+
+        .contact-card:hover {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px var(--primary-glow);
+        }
+
+        .contact-card i {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .contact-card h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .contact-card span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.3);
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background: rgba(5, 5, 10, 0.9);
+        }
+
+        footer span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media(max-width: 768px) {
+            .nav-links { display: none; }
+            nav { padding: 15px 20px; }
+            .controls-panel { gap: 10px; }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px var(--primary-glow); }
+            50% { box-shadow: 0 0 30px var(--primary); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-blob" style="top: 10%; left: 15%;"></div>
+    <div class="glow-blob" style="bottom: 20%; right: 10%;"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">
+            <i class="fa-solid fa-code"></i> Keef Web
+        </div>
+        <ul class="nav-links">
+            <li><a href="#inicio" data-i18n="nav_home">Inicio</a></li>
+            <li><a href="#servicios" data-i18n="nav_services">Servicios & Precios</a></li>
+            <li><a href="#tech" data-i18n="nav_tech">Tecnologías</a></li>
+            <li><a href="#contacto" data-i18n="nav_contact">Contacto</a></li>
+        </ul>
+        <div class="controls-panel">
+            <!-- Theme Color Dots -->
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <div class="theme-dot blue" onclick="setTheme('blue')" title="Blue Theme"></div>
+                <div class="theme-dot red" onclick="setTheme('red')" title="Red Theme"></div>
+                <div class="theme-dot black" onclick="setTheme('black')" title="Black Theme"></div>
+            </div>
+            <!-- Language Selector -->
+            <div class="control-group">
+                <button class="control-btn active" onclick="setLang('es')">ES</button>
+                <button class="control-btn" onclick="setLang('en')">EN</button>
+                <button class="control-btn" onclick="setLang('pt')">PT</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="inicio">
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            <span data-i18n="hero_status">Disponible para Proyectos & Servidores</span>
+        </div>
+        <h1>
+            <span data-i18n="hero_title1">Desarrollo Web & Bots</span><br>
+            <span data-i18n="hero_title2">para tu Servidor</span>
+        </h1>
+        <p class="hero-subtitle" data-i18n="hero_desc">
+            Transformo ideas en sistemas hiper-optimizados. Páginas web profesionales, bots inteligentes para Discord, Telegram y WhatsApp, y configuración experta de VPS & Hosting con rendimiento inigualable.
+        </p>
+        <div class="hero-cta">
+            <a href="#servicios" class="btn btn-primary">
+                <i class="fa-solid fa-bolt"></i> <span data-i18n="btn_services">Ver Precios & Servicios</span>
+            </a>
+            <a href="#contacto" class="btn btn-secondary">
+                <i class="fa-solid fa-paper-plane"></i> <span data-i18n="btn_contact">Contactar Ahora</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+
+        <!-- Stats Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h3>99.9%</h3>
+                <p data-i18n="stat_uptime">Uptime en VPS & Bots</p>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-server"></i>
+                <h3>50+</h3>
+                <p data-i18n="stat_servers">Servidores Optimizados</p>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-headset"></i>
+                <h3>24/7</h3>
+                <p data-i18n="stat_support">Soporte Técnico Dedicado</p>
+            </div>
+            <div class="stat-card">
+                <i class="fa-solid fa-bolt-lightning"></i>
+                <h3>26ms</h3>
+                <p data-i18n="stat_latency">Latencia & Bugs Mínimos</p>
+            </div>
+        </div>
+
+        <!-- Services & Pricing Section -->
+        <section id="servicios">
+            <div class="section-header">
+                <h2 data-i18n="serv_title">Servicios & Tarifas Económicas</h2>
+                <p data-i18n="serv_desc">Soluciones profesionales sin intermediarios con precios accesibles para creadores y comunidades.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Discord Bot -->
+                <div class="price-card">
+                    <div class="price-header">
+                        <i class="fa-brands fa-discord"></i>
+                        <h3 data-i18n="card1_title">Bot de Discord</h3>
+                        <p data-i18n="card1_desc">Automatización avanzada, moderación, tickets, economía y logs personalizados.</p>
+                    </div>
+                    <div class="price-tag">$10 USD <span>/ <span data-i18n="one_time">único</span></span></div>
+                    <ul class="features-list">
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c1_f1">Sistema de Moderación Automática</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c1_f2">Sistema de Tickets con Logs</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c1_f3">Integración con APIs Externas</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c1_f4">Hosting configurado en VPS</span></li>
+                    </ul>
+                    <a href="#contacto" class="btn btn-secondary" style="width: 100%; justify-content: center;" data-i18n="choose_plan">Elegir Plan</a>
+                </div>
+
+                <!-- Web Page (Featured) -->
+                <div class="price-card featured">
+                    <div class="price-header">
+                        <i class="fa-solid fa-globe"></i>
+                        <h3 data-i18n="card2_title">Página Web / Portafolio</h3>
+                        <p data-i18n="card2_desc">Sitio web moderno con efectos visuales impactantes, adaptado a móviles y SEO optimizado.</p>
+                    </div>
+                    <div class="price-tag">$25 USD <span>/ <span data-i18n="one_time">único</span></span></div>
+                    <ul class="features-list">
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c2_f1">Diseño Único & Animaciones CSS</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c2_f2">Multi-idioma & Selector de Temas</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c2_f3">100% Responsive (Móvil & PC)</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c2_f4">Dominio & Despliegue en VPS/Hosting</span></li>
+                    </ul>
+                    <a href="#contacto" class="btn btn-primary" style="width: 100%; justify-content: center;" data-i18n="choose_plan">Elegir Plan</a>
+                </div>
+
+                <!-- Multi-Bots & VPS Setup -->
+                <div class="price-card">
+                    <div class="price-header">
+                        <i class="fa-solid fa-robot"></i>
+                        <h3 data-i18n="card3_title">Bots Telegram & WhatsApp</h3>
+                        <p data-i18n="card3_desc">Bots de atención al cliente, pasarelas de pago automatizadas y gestión de grupos.</p>
+                    </div>
+                    <div class="price-tag">$10 USD <span>/ <span data-i18n="one_time">único</span></span></div>
+                    <ul class="features-list">
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c3_f1">Respuestas Automáticas & Menús</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c3_f2">Conexión con Base de Datos</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c3_f3">Soporte Telegram o WhatsApp</span></li>
+                        <li><i class="fa-solid fa-check"></i> <span data-i18n="c3_f4">Instalación y Configuración en VPS</span></li>
+                    </ul>
+                    <a href="#contacto" class="btn btn-secondary" style="width: 100%; justify-content: center;" data-i18n="choose_plan">Elegir Plan</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack Section -->
+        <section id="tech" style="margin-top: 100px;">
+            <div class="section-header">
+                <h2 data-i18n="tech_title">Stack Tecnológico & Herramientas</h2>
+                <p data-i18n="tech_desc">Tecnologías robustas probadas en entornos de alto rendimiento.</p>
+            </div>
+
+            <div class="tech-container">
+                <div class="tech-item">
+                    <i class="fa-brands fa-python"></i>
+                    <h4>Python</h4>
+                    <p>Bots & Backend API</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fa-brands fa-css3-alt"></i>
+                    <h4>CSS3 / HTML5</h4>
+                    <p>Diseño & Animaciones</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fa-brands fa-js"></i>
+                    <h4>JavaScript</h4>
+                    <p>Interactividad Dinámica</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fa-solid fa-server"></i>
+                    <h4>VPS & Linux</h4>
+                    <p>Hosting & Seguridad</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fa-solid fa-database"></i>
+                    <h4>Databases</h4>
+                    <p>SQL / MongoDB</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contacto" style="margin-top: 100px;">
+            <div class="contact-box">
+                <div class="glow-blob" style="top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.2;"></div>
+                <h2 style="font-size: 2.3rem; margin-bottom: 15px;" data-i18n="contact_title">¿Listo para potenciar tu proyecto?</h2>
+                <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;" data-i18n="contact_desc">Contáctame directamente a través de mis canales oficiales. Respuesta rápida y atención personalizada.</p>
+                
+                <div class="contact-grid">
+                    <!-- Discord -->
+                    <a href="https://discord.com" target="_blank" class="contact-card">
+                        <i class="fa-brands fa-discord"></i>
+                        <h4 data-i18n="contact_discord">Discord Oficial</h4>
+                        <span>71x7.</span>
+                    </a>
+                    <!-- Gmail -->
+                    <a href="mailto:tacosalmighty@gmail.com" class="contact-card">
+                        <i class="fa-solid fa-envelope"></i>
+                        <h4 data-i18n="contact_email">Correo Electrónico</h4>
+                        <span>tacosalmighty@gmail.com</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 <span>Keef Web</span>. <span data-i18n="footer_rights">Todos los derechos reservados. Creado por un Dev experto.</span></p>
+    </footer>
+
+    <!-- Script for Themes & Multilanguage & Effects -->
+    <script>
+        // Translations dictionary for ES, EN, PT
+        const translations = {
+            es: {
+                nav_home: "Inicio",
+                nav_services: "Servicios & Precios",
+                nav_tech: "Tecnologías",
+                nav_contact: "Contacto",
+                hero_status: "Disponible para Proyectos & Servidores",
+                hero_title1: "Desarrollo Web & Bots",
+                hero_title2: "para tu Servidor",
+                hero_desc: "Transformo ideas en sistemas hiper-optimizados. Páginas web profesionales, bots inteligentes para Discord, Telegram y WhatsApp, y configuración experta de VPS & Hosting con rendimiento inigualable.",
+                btn_services: "Ver Precios & Servicios",
+                btn_contact: "Contactar Ahora",
+                stat_uptime: "Uptime en VPS & Bots",
+                stat_servers: "Servidores Optimizados",
+                stat_support: "Soporte Técnico Dedicado",
+                stat_latency: "Latencia & Bugs Mínimos",
+                serv_title: "Servicios & Tarifas Económicas",
+                serv_desc: "Soluciones profesionales sin intermediarios con precios accesibles para creadores y comunidades.",
+                card1_title: "Bot de Discord",
+                card1_desc: "Automatización avanzada, moderación, tickets, economía y logs personalizados.",
+                one_time: "único",
+                c1_f1: "Sistema de Moderación Automática",
+                c1_f2: "Sistema de Tickets con Logs",
+                c1_f3: "Integración con APIs Externas",
+                c1_f4: "Hosting configurado en VPS",
+                choose_plan: "Elegir Plan",
+                card2_title: "Página Web / Portafolio",
+                card2_desc: "Sitio web moderno con efectos visuales impactantes, adaptado a móviles y SEO optimizado.",
+                c2_f1: "Diseño Único & Animaciones CSS",
+                c2_f2: "Multi-idioma & Selector de Temas",
+                c2_f3: "100% Responsive (Móvil & PC)",
+                c2_f4: "Dominio & Despliegue en VPS/Hosting",
+                card3_title: "Bots Telegram & WhatsApp",
+                card3_desc: "Bots de atención al cliente, pasarelas de pago automatizadas y gestión de grupos.",
+                c3_f1: "Respuestas Automáticas & Menús",
+                c3_f2: "Conexión con Base de Datos",
+                c3_f3: "Soporte Telegram o WhatsApp",
+                c3_f4: "Instalación y Configuración en VPS",
+                tech_title: "Stack Tecnológico & Herramientas",
+                tech_desc: "Tecnologías robustas probadas en entornos de alto rendimiento.",
+                contact_title: "¿Listo para potenciar tu proyecto?",
+                contact_desc: "Contáctame directamente a través de mis canales oficiales. Respuesta rápida y atención personalizada.",
+                contact_discord: "Discord Oficial",
+                contact_email: "Correo Electrónico",
+                footer_rights: "Todos los derechos reservados. Creado por un Dev experto."
+            },
+            en: {
+                nav_home: "Home",
+                nav_services: "Services & Pricing",
+                nav_tech: "Tech Stack",
+                nav_contact: "Contact",
+                hero_status: "Available for Projects & Servers",
+                hero_title1: "Web Dev & Bots",
+                hero_title2: "Elite Tier for Your Server",
+                hero_desc: "I turn ideas into hyper-optimized systems. Professional web pages, intelligent bots for Discord, Telegram & WhatsApp, and expert VPS & Hosting setup with unmatched performance.",
+                btn_services: "View Pricing & Services",
+                btn_contact: "Contact Now",
+                stat_uptime: "Uptime on VPS & Bots",
+                stat_servers: "Optimized Servers",
+                stat_support: "Dedicated Technical Support",
+                stat_latency: "Minimal Latency & Bugs",
+                serv_title: "Services & Economic Rates",
+                serv_desc: "Professional solutions without middlemen with affordable prices for creators and communities.",
+                card1_title: "Discord Pro Bot",
+                card1_desc: "Advanced automation, moderation, tickets, economy, and custom logs.",
+                one_time: "one-time",
+                c1_f1: "Auto Moderation System",
+                c1_f2: "Ticket System with Logs",
+                c1_f3: "External API Integration",
+                c1_f4: "VPS Hosting Configured",
+                choose_plan: "Choose Plan",
+                card2_title: "Web Page / Portfolio",
+                card2_desc: "Modern website with striking visual effects, mobile-friendly, and SEO optimized.",
+                c2_f1: "Unique Design & CSS Animations",
+                c2_f2: "Multi-language & Theme Switcher",
+                c2_f3: "100% Responsive (Mobile & PC)",
+                c2_f4: "Domain & VPS/Hosting Deployment",
+                card3_title: "Telegram & WhatsApp Bots",
+                card3_desc: "Customer service bots, automated payment gateways, and group management.",
+                c3_f1: "Auto Responses & Menus",
+                c3_f2: "Database Connection",
+                c3_f3: "Telegram or WhatsApp Support",
+                c3_f4: "Installation & Setup on VPS",
+                tech_title: "Tech Stack & Tools",
+                tech_desc: "Robust technologies proven in high-performance environments.",
+                contact_title: "Ready to power up your project?",
+                contact_desc: "Contact me directly through my official channels. Fast response and personalized attention.",
+                contact_discord: "Official Discord",
+                contact_email: "Email Address",
+                footer_rights: "All rights reserved. Created by an expert Dev."
+            },
+            pt: {
+                nav_home: "Início",
+                nav_services: "Serviços & Preços",
+                nav_tech: "Tecnologias",
+                nav_contact: "Contato",
+                hero_status: "Disponível para Projetos & Servidores",
+                hero_title1: "Desenvolvimento Web & Bots",
+                hero_title2: "Nível de Elite para o seu Servidor",
+                hero_desc: "Transformo ideias em sistemas hiper-otimizados. Páginas web profissionais, bots inteligentes para Discord, Telegram e WhatsApp, e configuração especializada de VPS & Hospedagem.",
+                btn_services: "Ver Preços & Serviços",
+                btn_contact: "Contatar Agora",
+                stat_uptime: "Uptime em VPS & Bots",
+                stat_servers: "Servidores Otimizados",
+                stat_support: "Suporte Técnico Dedicado",
+                stat_latency: "Latência & Bugs Mínimos",
+                serv_title: "Servicios & Preços Econômicos",
+                serv_desc: "Soluções profissionais sem intermediários com preços acessíveis para criadores e comunidades.",
+                card1_title: "Bot de Discord Pro",
+                card1_desc: "Automação avançada, moderação, tickets, economia e logs personalizados.",
+                one_time: "único",
+                c1_f1: "Sistema de Moderação Automática",
+                c1_f2: "Sistema de Tickets com Logs",
+                c1_f3: "Integração com APIs Externas",
+                c1_f4: "Hospedagem configurada em VPS",
+                choose_plan: "Escolher Plano",
+                card2_title: "Página Web / Portfólio",
+                card2_desc: "Site moderno com efeitos visuais impactantes, adaptado para celular e otimizado.",
+                c2_f1: "Design Único & Animações CSS",
+                c2_f2: "Multi-idioma & Seletor de Temas",
+                c2_f3: "100% Responsivo (Celular & PC)",
+                c2_f4: "Domínio & Implantação em VPS",
+                card3_title: "Bots Telegram & WhatsApp",
+                card3_desc: "Bots de atendimento, gateways de pagamento automatizados e gestão de grupos.",
+                c3_f1: "Respostas Automáticas & Menus",
+                c3_f2: "Conexión com Banco de Dados",
+                c3_f3: "Suporte Telegram ou WhatsApp",
+                c3_f4: "Instalação e Configuração em VPS",
+                tech_title: "Stack Tecnológico & Ferramentas",
+                tech_desc: "Tecnologias robustas testadas em ambientes de alto desempenho.",
+                contact_title: "Pronto para impulsionar seu projeto?",
+                contact_desc: "Contate-me diretamente pelos canais oficiais. Resposta rápida e atenção personalizada.",
+                contact_discord: "Discord Oficial",
+                contact_email: "E-mail",
+                footer_rights: "Todos os direitos reservados. Criado por um Dev especialista."
+            }
+        };
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.querySelectorAll('.theme-dot').forEach(dot => dot.classList.remove('active'));
+            document.querySelector('.theme-dot.' + theme).classList.add('active');
+            localStorage.setItem('keef_theme', theme);
+        }
+
+        function setLang(lang) {
+            document.documentElement.setAttribute('data-lang', lang);
+            document.querySelectorAll('.control-group .control-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.toLowerCase() === lang) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update text content
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            localStorage.setItem('keef_lang', lang);
+        }
+
+        // Initialize saved preferences
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('keef_theme') || 'blue';
+            setTheme(savedTheme);
+            const savedLang = localStorage.getItem('keef_lang') || 'es';
+            setLang(savedLang);
+        });
+    </script>
+</body>
+</html>
